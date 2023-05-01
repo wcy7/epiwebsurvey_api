@@ -1,0 +1,22 @@
+
+
+GET https://localhost:5001/api/surveyresponse HTTP/1.1
+Authorization: Bearer 1ee280ca-c097-46dc-bc1b-ff4b3e30e8c9
+SurveyId:4F554128-B3E2-481E-B1D1-2EB2E6B14532  
+
+####
+####
+
+
+
+PUT https://localhost:5001/api/surveyresponse HTTP/1.1
+Authorization: 64783e6f-23e9-4713-9360-2cfbc650f1e6
+SurveyId:4F554128-B3E2-481E-B1D1-2EB2E6B14532 
+content-type:application/json 
+
+{   
+     "id":"184c49fe-ba20-4f56-88f8-cbfdc481f769",
+     "patient_name":"test1_name",
+     "onset_date":"11//14//2019",
+     "ssd":"123"
+}

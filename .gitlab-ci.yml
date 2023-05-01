@@ -1,0 +1,149 @@
+image: docker:stable
+
+variables:
+  DOCKER_DRIVER: overlay
+
+#services:
+#  - docker:dind
+  
+stages:  
+ - build
+ - sast
+ - deploy
+ - verify
+
+build:  
+ tags:
+  - docker
+ stage: build
+ script:
+  - docker build -t $CI_PROJECT_NAME:latest .
+
+master_build_and_push:
+  tags:
+    - docker
+  only:
+    - master
+  stage: build
+  script:
+    - docker build -t $REPOSITORY_URL/$CI_PROJECT_NAME:latest .
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $REPOSITORY_URL
+    - docker push $REPOSITORY_URL/$CI_PROJECT_NAME:latest
+    - docker images
+
+master_deploy:
+  tags:
+    - docker
+  stage: deploy
+  only:
+    - master
+  image: openshift/origin-cli
+  script:
+    - oc login $OCP_URL --username=$OCP_USERNAME --password=$OCP_PASSWORD --insecure-skip-tls-verify
+    - oc project $OCP_PROJECT_NAME
+    #- oc tag $REPOSITORY_URL/$CI_PROJECT_NAME $OCP_PROJECT_NAME.epiwebsurveyapi:latest
+    
+    - echo "Deleting old application..."
+    - oc delete all -n $OCP_PROJECT_NAME -l app=${CI_ENVIRONMENT_SLUG} || true
+    - echo "delete"
+    - oc secrets link default $OcSecret --for=pull
+    - echo "Creating application..."
+    #- echo "deleting old deployment..."
+    #- oc delete -n $OCP_PROJECT_NAME dc/$CI_ENVIRONMENT_SLUG 
+    - oc new-app -n $OCP_PROJECT_NAME --name=${CI_ENVIRONMENT_SLUG} $REPOSITORY_URL/$CI_PROJECT_NAME --source-secret=$OcSecret
+    - echo ""
+    - echo "Waiting for deployment..."
+    - oc rollout status -n $OCP_PROJECT_NAME dc/$CI_ENVIRONMENT_SLUG
+    #- oc set env dc/$CI_ENVIRONMENT_SLUG  ClientId=$Sams_ClientId ClientSecret=$Sams_ClientSecret
+    - echo "Checking routes..."
+    - if ! oc get routes -n $OCP_PROJECT_NAME ${CI_ENVIRONMENT_SLUG} &> /dev/null; then
+    - echo "Creating routes..."
+    #- oc expose service -n $OCP_PROJECT_NAME ${CI_ENVIRONMENT_SLUG} --hostname=${CI_ENVIRONMENT_HOSTNAME} --port=9015-tcp
+    -  oc expose service -n $OCP_PROJECT_NAME ${CI_ENVIRONMENT_SLUG} --hostname=${CI_ENVIRONMENT_HOSTNAME} 
+    - echo "creating service"
+    -  oc delete route ${CI_ENVIRONMENT_SLUG}
+    -  oc  create route edge --service=${CI_ENVIRONMENT_SLUG} --insecure-policy=Redirect --hostname=${CI_ENVIRONMENT_HOSTNAME} --port=9015-tcp
+    
+    - fi
+verify:
+  tags:
+    - docker
+  only:
+    - master
+  stage: verify
+  script:
+   - echo "Application is accessible at:...episurveyapi-epi-info-api.services-dev.cdc.gov"
+    - wget -qO- $VERIFY_URL
+
+sonar_scan:
+  tags:
+    - docker
+  image: mcr.microsoft.com/dotnet/core/sdk:3.0-buster
+  stage: sast
+  allow_failure: true
+  script:
+    - cat /etc/os-release
+    - dotnet tool install --global dotnet-sonarscanner
+    - dotnet tool install --global coverlet.console
+    #- cd tests
+    #- dotnet add package coverlet.msbuild
+    #- cd ..
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - apt-get update
+    - apt-get install default-jre -y
+    #- apt-get update -yq && apt-get upgrade -yq && apt-get install -yq curl git nano
+   # - curl -sL https://deb.nodesource.com/setup_10.x | bash - && apt-get install -yq nodejs build-essential
+   # - node --version
+   # - npm install -g npm && npm install
+   # - npm remove webpack -g
+   # - npm i webpack --save-dev
+   # - dotnet test tests/CDC.MMGAT.WebUI.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - > 
+        dotnet-sonarscanner
+        begin
+        /key:EISAPI
+        /v:"$VERSION.${CI_PIPELINE_ID}"
+        /d:sonar.exclusions="**/wwwroot/**, **/obj/**, **/bin/**" 
+        /d:sonar.cs.opencover.reportsPaths="tests/coverage.opencover.xml" 
+        /d:sonar.coverage.exclusions="**Test*.cs"
+        /d:sonar.analysis.mode=publish 
+        /d:sonar.gitlab.api_version="v4" 
+        /d:sonar.gitlab.commit_sha="$CI_COMMIT_SHA" 
+        /d:sonar.gitlab.ref_name="$CI_COMMIT_REF_NAME" 
+        /d:sonar.gitlab.project_id="$CI_PROJECT_ID" 
+        /d:sonar.gitlab.url="https://git.cdc.gov" 
+        /d:sonar.gitlab.user_token="$SONAR_USER_TOKEN"
+        /d:"sonar.host.url=$SONAR_URL_INSECURE" 
+
+    - dotnet build
+    - dotnet-sonarscanner end
+    
+# Running Fortify SCA Scan
+fortify_scan:
+  tags:
+    - fortify
+  stage: sast
+  allow_failure: true
+  only:
+    - master
+  script:
+    - echo "Running Fortify SCA scan"
+    - echo "Testing again"
+    
+    # Fortify Update
+    #sudo /opt/Fortify/Fortify_SCA_and_Apps_19.1.0/bin/fortifyupdate -url https://update.fortify.com"
+    # Fortify Clean
+    - /opt/Fortify/Fortify_SCA_and_Apps/bin/sourceanalyzer -Dcom.fortify.sca.ProjectRoot=./.fortify -clean -b EISAPI
+    # Fortify Translate
+    - /opt/Fortify/Fortify_SCA_and_Apps/bin/sourceanalyzer -Dcom.fortify.sca.ProjectRoot=./.fortify -b EISAPI -libdirs **/* **/* 
+    # Fortify Scan
+    - /opt/Fortify/Fortify_SCA_and_Apps/bin/sourceanalyzer -Dcom.fortify.sca.ProjectRoot=./.fortify -b EISAPI -scan -f results.fpr
+    # Query FPR file
+    - /opt/Fortify/Fortify_SCA_and_Apps/bin/FPRUtility -information -categoryIssueCounts -project results.fpr -search -query "[fortify priority order]:critical"
+    # Upload FPR file to SSC server; Create project environment variables for authentication token and project version ID with SSC. 
+    - /opt/Fortify/Fortify_SCA_and_Apps/bin/fortifyclient -url https://ssc.cdc.gov -authtoken $AUTH_TOKEN -file results.fpr -projectVersionID $PROJ_VER_ID uploadFPR
+    #- /opt/Fortify/Fortify_SCA_and_Apps_19.1.0/bin/fortifyclient -url https://ssc.cdc.gov -authtoken $AUTH_TOKEN listApplicationVersions
+
+
+   
+ 

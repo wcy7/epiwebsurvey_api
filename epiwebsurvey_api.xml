@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>epiwebsurvey_api</name>
+    </assembly>
+    <members>
+        <member name="M:epiwebsurvey_api.Context.EntitySurveyInfoDao.GetSurveyInfo(System.Collections.Generic.List{System.String},System.Int32,System.Int32)">
+            <summary>
+            Gets SurveyInfo based on a list of ids
+            </summary>
+            <param name="SurveyInfoId">Unique SurveyInfo identifier.</param>
+            <returns>SurveyInfo.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.EntitySurveyInfoDao.GetSurveyInfo(System.Collections.Generic.List{System.String},System.DateTime,System.String,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Gets SurveyInfo based on criteria
+            </summary>
+            <param name="SurveyInfoId">Unique SurveyInfo identifier.</param>
+            <returns>SurveyInfo.</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:epiwebsurvey_api.Context.EntitySurveyResponseDao.GetSurveyResponse(System.Collections.Generic.List{System.String},System.Guid,System.Int32,System.Int32)" -->
+        <member name="M:epiwebsurvey_api.Context.EntitySurveyResponseDao.InsertSurveyResponseApi(Epi.Web.Common.BusinessObject.SurveyResponseBO)">
+            <summary>
+            Inserts a new SurveyResponse via API. 
+            </summary>
+            <remarks>
+            Following insert, SurveyResponse object will contain the new identifier.
+            </remarks>  
+            <param name="SurveyResponse">SurveyResponse.</param>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.EntitySurveyResponseDao.InsertSurveyResponse(Epi.Web.Common.BusinessObject.SurveyResponseBO)">
+            <summary>
+            Inserts a new SurveyResponse. 
+            </summary>
+            <remarks>
+            Following insert, SurveyResponse object will contain the new identifier.
+            </remarks>  
+            <param name="SurveyResponse">SurveyResponse.</param>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.EntitySurveyResponseDao.GetSurveyResponseBySurveyId(System.Collections.Generic.List{System.String},System.Guid,System.Int32,System.Int32)">
+            <summary>
+            Gets SurveyResponses per a SurveyId.
+            </summary>
+            <param name="SurveyResponseId">Unique SurveyResponse identifier.</param>
+            <returns>SurveyResponse.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.EntitySurveyResponseDao.UpdateSurveyResponse(Epi.Web.Common.BusinessObject.SurveyResponseBO)">
+            <summary>
+            Updates a SurveyResponse.
+            </summary>
+            <param name="SurveyResponse">SurveyResponse.</param>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.Mapper.Map(epiwebsurvey_api.Context.Entities.SurveyMetaData)">
+            <summary>
+            Maps SurveyMetaData entity to SurveyInfoBO business object.
+            </summary>
+            <param name="entity">A SurveyMetaData entity to be transformed.</param>
+            <returns>A SurveyInfoBO business object.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.Mapper.Map(Epi.Web.Common.BusinessObject.SurveyInfoBO)">
+            <summary>
+            Maps SurveyInfoBO business object to SurveyMetaData entity.
+            </summary>
+            <param name="businessobject">A SurveyInfoBO business object.</param>
+            <returns>A SurveyMetaData entity.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.Mapper.Map(Epi.Web.Common.DTO.SurveyAnswerDTO)">
+            <summary>
+            Maps SurveyMetaData entity to SurveyInfoBO business object.
+            </summary>
+            <param name="entity">A SurveyMetaData entity to be transformed.</param>
+            <returns>A SurveyInfoBO business object.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.Mapper.Map(Epi.Web.Common.BusinessObject.SurveyResponseBO)">
+            <summary>
+            Maps SurveyInfoBO business object to SurveyMetaData entity.
+            </summary>
+            <param name="businessobject">A SurveyInfoBO business object.</param>
+            <returns>A SurveyMetaData entity.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.Mapper.Map(System.Collections.Generic.List{epiwebsurvey_api.Context.Entities.SurveyResponse})">
+            <summary>
+            Maps SurveyMetaData entity to SurveyInfoBO business object.
+            </summary>
+            <param name="entity">A SurveyMetaData entity to be transformed.</param>
+            <returns>A SurveyInfoBO business object.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Context.Mapper.ToEF(Epi.Web.Common.BusinessObject.SurveyResponseBO,System.Int32)">
+            <summary>
+            Maps SurveyInfoBO business object to SurveyMetaData entity.
+            </summary>
+            <param name="businessobject">A SurveyInfoBO business object.</param>
+            <returns>A SurveyMetaData entity.</returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Controllers.AuthorizationController.RefreshToken(System.String)">
+            <summary>
+            Generate new token  
+            </summary>  
+        </member>
+        <member name="M:epiwebsurvey_api.Controllers.SurveyResponseController.Get">
+            <summary>
+            Query the responses for a given SurveyId after successful Authentication
+            </summary>    
+            <returns>HTTPRespose code with json</returns> 
+            <response code="200">Ok</response>
+            <response code="415">UnsupportedMediaType- SurveyId is invalid or does not exist</response>
+            <response code="401"> Unauthorized- invalid token</response>
+        </member>
+        <member name="M:epiwebsurvey_api.Controllers.SurveyResponseController.GetFilteredResponse(System.String)">
+            <summary>
+            Query the responses for a given SurveyId and given key value pair after successful Authentication
+            </summary>    
+            /// <remarks>               
+            Sample request:        
+            GetFilteredResponse api/SurveyResponse  
+            {               
+                  "FirstName": "John",  
+                  "LastName":"Keifer"
+             }
+            </remarks>
+            <returns>HTTPRespose code with json</returns> 
+            <response code="200">Ok</response>
+            <response code="415">UnsupportedMediaType- SurveyId is invalid or does not exist or JsonKeyval is in incorrect format</response>
+            <response code="401"> Unauthorized- invalid token</response>
+        </member>
+        <member name="M:epiwebsurvey_api.Controllers.SurveyResponseController.Put(System.Object)">
+            <summary>
+            Submit response after successful Authentication
+            </summary>    
+            /// <remarks>               
+            Sample request:        
+            Put api/SurveyResponse  
+            {        
+                  "id": "3BA54128-B3E2-681E-B1D1-2EB2EcB1453f",
+                  "FirstName": "John",  
+                  "LastName":"Keifer"
+             }
+            </remarks>
+            <returns>status code,ResponseId,Passcode</returns>         
+            <response code="200">Ok- response created/updated</response>
+            <response code="415">UnsupportedMediaType- SurveyId is invalid or does not exist or invalid json format</response>
+            <response code="401"> Unauthorized- invalid token</response>
+        </member>
+        <member name="M:epiwebsurvey_api.Controllers.SurveyResponseController.Delete(System.String)">
+            <summary>
+            Delete response after successful Authentication
+            </summary>    
+            /// <remarks>               
+            Sample request:        
+            Delete api/SurveyResponse  
+            {        
+               "ResponseId": "184c49fe-ba20-gf56-88f8-cbfdck81f799"          
+             }
+            </remarks>
+            <returns>response code</returns> 
+            <response code="200">Ok- Response deleted</response>
+            <response code="415">UnsupportedMediaType- SurveyId is invalid/ResponseId is invalid</response>
+            <response code="403">Forbidden- ResponseId does not exist</response>
+            <response code="401"> Unauthorized- invalid token</response>
+        </member>
+        <member name="M:epiwebsurvey_api.Repositories.SurveyResponseRepository.SetSurveyAnswer(epiwebsurvey_api.Models.SurveyAnswerModel,System.String)">
+            <summary>
+            Inserts SurveyResponse 
+            </summary>
+            <param name="SurveyAnswerModel"></param>
+            <returns>response </returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:epiwebsurvey_api.Repositories.SurveyResponseRepository.Update(epiwebsurvey_api.Models.SurveyAnswerModel,System.String,System.String)" -->
+        <member name="M:epiwebsurvey_api.Repositories.SurveyResponseRepository.GetSurveyInfoById(System.String)">
+            <summary>
+            Validate Header information coming from the request
+            </summary>
+            <param name="SurveyId"></param>
+            <returns>response </returns>
+        </member>
+        <member name="M:epiwebsurvey_api.Repositories.SurveyResponseRepository.Remove(System.String)">
+            <summary>
+            Updates SurveyResponse 
+            </summary>
+            <param name="id"></param>
+        </member>
+    </members>
+</doc>

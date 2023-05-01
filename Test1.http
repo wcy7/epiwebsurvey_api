@@ -1,0 +1,49 @@
+### "parameters": "{\"Build_Configuration\" : \"QA\", \"Code_Location\" : \"DPH_SHI/Release 4.4\", \"IIS_Application_Name\" : \"SHIAdmin\", \"Solution_File_Name\" : \"SHIAdmin v4.4.sln\"}"
+# @host = localhost:5000
+# @token = Bearer e975b15aa477ee440417ea069e8ef728a22933f0
+# Authorization: {{token}}
+Authorization: {{token}}
+
+ @token = Bearer e975b15aa477ee440417ea069e8ef728a22933f0
+ @surveyid= 4F554128-B3E2-481E-B1D1-2EB2E6B14532  
+
+ ###Authorization: Bearer aXN1NzpFYyUyMHBhYTUlMjBAJTQwJTIwbjB3JTIwMDQ=
+###JsonData = 
+###{
+    ###"definition": {"id": 1058},
+    ###"parameters": "{\"Application_Password\" : \"[Your apps Password]\", \"Application_Username\" : \"[Your apps Username]\", \"Authentication_Type\" : \"Forms\", \"Macro_Name\" : \"User webinspect\", \"RecordNumber\" : \"[The Record Number for the first API call]\", \"SSC_Application_Name\" : \"[The name of the application in SSC]\", \"SSC_Application_Version\" : \"[The version of the application in SSC]\", \"Starting_URL\" : \"[Your apps UL]\"}"
+###}
+
+
+PUT 'https://localhost:5001/api/surveyresponse', {:SurveyId => '4F554128-B3E2-481E-B1D1-2EB2E6B14532'}, {:Authorization => 'Bearer d3a53cf5-a1f3-4968-a93c-7eca7b9ec8ae'}
+content-type: application/json
+
+{
+     "{\"id\":\"184c49fe-ba20-4f56-88f8-cbfdc481f769\",\"patient_name\":\"test1_name\",\"onset_date\":\"11\\/14\\/2019\",\"ssd\":123}"
+}
+
+###JsonData = 
+###{
+    ###"definition": {"id": 1058},
+    ###"parameters": "{\"Application_Password\" : \"[Your apps Password]\", \"Application_Username\" : \"[Your apps Username]\", \"Authentication_Type\" : \"Forms\", \"Macro_Name\" : \"User webinspect\", \"RecordNumber\" : \"[The Record Number for the first API call]\", \"SSC_Application_Name\" : \"[The name of the application in SSC]\", \"SSC_Application_Version\" : \"[The version of the application in SSC]\", \"Starting_URL\" : \"[Your apps UL]\"}"
+###}
+
+
+
+ 
+ 
+GET https://localhost:5001/api/surveyresponse HTTP/1.1
+SurveyId:4F554128-B3E2-481E-B1D1-2EB2E6B14532  
+
+
+#####
+####
+
+PUT https://localhost:5001/api/surveyresponse HTTP/1.1
+SurveyId:4F554128-B3E2-481E-B1D1-2EB2E6B14532 
+content-type: application/json  
+
+{   
+
+     "parameters": "{\"id\":\"184c49fe-ba20-4f56-88f8-cbfdc481f769\",\"patient_name\":\"test1_name\",\"onset_date\":\"11\\/14\\/2019\",\"ssd\":"123"}"
+}
